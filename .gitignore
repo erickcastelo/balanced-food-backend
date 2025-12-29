@@ -1,2 +1,4 @@
 src/docker/data
 node_modules/
+/generated/prisma
+.env

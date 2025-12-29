@@ -1,8 +1,11 @@
-import 'reflect-metadata';
 import express from 'express';
-import { createConnection } from 'typeorm';
-import { categoryRouter } from './modules/category/category.index';
 import bodyParser from 'body-parser';
+import cors from 'cors';
+import { userRouter } from './modules/users/user.index';
+import { errorMiddleware } from './middleware/error.middleware';
+import { authRouter } from './modules/auth/auth.index';
+import { balanceRouter } from './modules/balances/balance.index';
+import { expenseRouter } from './modules/expenses/expense.index';
 
 export class Server {
   private readonly app = express();
@@ -13,15 +16,21 @@ export class Server {
   }
 
   public init = async (): Promise<void> => {
-    await createConnection();
-    new Promise<void>((res) => {
-      this.app.use(categoryRouter.router);
-    });
+    this.app.use(
+      cors({
+        origin: '*',
+        credentials: true,
+      })
+    );
+    this.app.use(userRouter.router);
+    this.app.use(authRouter.router);
+    this.app.use(balanceRouter.router);
+    this.app.use(expenseRouter.router);
+
+    this.app.use(errorMiddleware);
   };
 
   public start = async (): Promise<void> => {
-    new Promise<void>((res) => {
-      this.app.listen(3000, () => console.log('backend started in 3000 port!'));
-    });
+    this.app.listen(3000, () => console.log('backend started in 3000 port!'));
   };
 }

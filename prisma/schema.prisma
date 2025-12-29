@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  admin
+  user_meal_voucher
+  user_food_voucher
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  userId    String   @unique @db.VarChar(100)
+  password  String   @db.VarChar(255)
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+
+  monthlyBalances MonthlyBalance[]
+  expenses Expense[]
+}
+
+model MonthlyBalance {
+  id            Int      @id @default(autoincrement())
+  month         Int
+  year          Int
+  totalAmount   Decimal  @db.Decimal(10, 2)
+  foodAmount    Decimal  @db.Decimal(10, 2)
+  mealAmount    Decimal  @db.Decimal(10, 2)
+  createdById   Int
+  createdAt     DateTime @default(now())
+
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@map("monthly_balances")
+  
+  expenses Expense[]
+}
+
+model Expense {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  monthlyBalanceId Int
+  amount           Decimal  @db.Decimal(10, 2)
+  description      String   @db.VarChar(255)
+  expenseDate      DateTime @db.Date
+  createdAt        DateTime @default(now())
+
+  user             User           @relation(fields: [userId], references: [id])
+  monthlyBalance   MonthlyBalance @relation(fields: [monthlyBalanceId], references: [id])
+
+  @@map("expenses")
+}
