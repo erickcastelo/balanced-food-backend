@@ -2,7 +2,6 @@ import { AuthDTO } from './auth.dto';
 import { prisma } from '../../lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '@prisma/client';
 import { UserResponse } from '../users/user.dto';
 import { TokenPayload } from '../../middleware/auth.middleware';
 

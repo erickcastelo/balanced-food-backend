@@ -31,6 +31,8 @@ export class Server {
   };
 
   public start = async (): Promise<void> => {
-    this.app.listen(3000, () => console.log('backend started in 3000 port!'));
+    this.app.listen(process.env.PRODUCTION ? 80 : 3000, () =>
+      console.log('backend started in 3000 port!')
+    );
   };
 }
