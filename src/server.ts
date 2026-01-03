@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import 'dotenv/config';
 import { userRouter } from './modules/users/user.index';
 import { errorMiddleware } from './middleware/error.middleware';
 import { authRouter } from './modules/auth/auth.index';
@@ -31,8 +32,9 @@ export class Server {
   };
 
   public start = async (): Promise<void> => {
-    this.app.listen(process.env.PRODUCTION ? 80 : 3000, () =>
-      console.log('backend started in 3000 port!')
+    const port = process.env.PRODUCTION === 'true' ? 80 : 3000;
+    this.app.listen(port, () =>
+      console.log(`backend started in ${port} port!`)
     );
   };
 }
