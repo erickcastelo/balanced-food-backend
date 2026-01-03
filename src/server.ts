@@ -7,6 +7,7 @@ import { errorMiddleware } from './middleware/error.middleware';
 import { authRouter } from './modules/auth/auth.index';
 import { balanceRouter } from './modules/balances/balance.index';
 import { expenseRouter } from './modules/expenses/expense.index';
+import { healthRouter } from './modules/health/health.index';
 
 export class Server {
   private readonly app = express();
@@ -27,6 +28,7 @@ export class Server {
     this.app.use(authRouter.router);
     this.app.use(balanceRouter.router);
     this.app.use(expenseRouter.router);
+    this.app.use(healthRouter.router);
 
     this.app.use(errorMiddleware);
   };
