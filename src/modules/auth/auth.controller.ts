@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 export interface AuthController {
   login(
@@ -22,15 +23,33 @@ export class AuthControllerImpl implements AuthController {
     response: Response,
     next: NextFunction
   ): Promise<Response | void> => {
-    const { token } = request.params;
+    try {
+      const { token } = request.params;
 
-    if (!token) {
-      return response.status(401).json({ message: 'Token not provided' });
+      if (!token) {
+        return response.status(401).json({ message: 'Token not provided' });
+      }
+
+      const user = await this.authService.me(token);
+
+      return response.status(200).send(user);
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        return response.status(401).json({
+          message: 'Token expirado',
+        });
+      }
+
+      if (error instanceof JsonWebTokenError) {
+        return response.status(401).json({
+          message: 'Token inválido',
+        });
+      }
+
+      return response.status(401).json({
+        message: 'Não autorizado',
+      });
     }
-
-    const user = await this.authService.me(token);
-
-    return response.status(200).send(user);
   };
 
   public login = async (

@@ -28,32 +28,35 @@ export class ExpenseServiceImpl implements ExpenseService {
           ? 'foodAmount'
           : 'all';
 
+    const balance = await prisma.monthlyBalance.findFirst({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        [field]: true,
+        month: true,
+        year: true,
+      },
+    });
+
     const result = await prisma.expense.groupBy({
       by: ['monthlyBalanceId'],
       where: {
         userId: user?.id,
+        monthlyBalanceId: Number(balance?.id),
       },
       _sum: {
         amount: true,
       },
     });
 
-    const balance = await prisma.monthlyBalance.findFirst({
-      where: {
-        id: {
-          in: result.map((r) => r.monthlyBalanceId),
-        },
-      },
-      select: {
-        id: true,
-        [field]: true,
-      },
-    });
-
-    const response = result.map((r) => ({
+    const response = {
       amount: balance?.[field],
-      totalExpenses: r._sum.amount,
-    }));
+      month: balance?.month,
+      year: balance?.year,
+      totalExpenses: result.length > 0 ? result[0]?._sum.amount : 0,
+    };
 
     const expenseHistory = await prisma.expense.findMany({
       where: {
@@ -66,7 +69,7 @@ export class ExpenseServiceImpl implements ExpenseService {
       },
     });
 
-    return response.length > 0 ? { ...response[0], expenseHistory } : [];
+    return { ...response, expenseHistory };
   };
 
   public create = async (
