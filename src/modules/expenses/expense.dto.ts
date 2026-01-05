@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 export const createExpenseSchema = z.object({
   amount: z.number(),
   description: z.string().min(3),
-  expenseDate: z.date(),
+  expenseDate: z.coerce.date(),
 });
 
 export type ExpenseCreateResponse = Prisma.ExpenseGetPayload<{

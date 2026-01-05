@@ -51,7 +51,7 @@ model Expense {
   monthlyBalanceId Int
   amount           Decimal  @db.Decimal(10, 2)
   description      String   @db.VarChar(255)
-  expenseDate      DateTime @db.Date
+  expenseDate      DateTime @db.Timestamptz(6)
   createdAt        DateTime @default(now())
 
   user             User           @relation(fields: [userId], references: [id])

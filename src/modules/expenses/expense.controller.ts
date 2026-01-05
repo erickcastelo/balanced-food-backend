@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ExpenseService } from './expense.service';
+import { createExpenseSchema } from './expense.dto';
 
 export interface ExpenseController {
   getExpense(
@@ -35,7 +36,9 @@ export class ExpenseControllerImpl implements ExpenseController {
     const body = request.body;
     const userId = request.user?.userId;
 
-    const data = await this.expenseService.create(body, userId ?? '');
+    const parsedData = createExpenseSchema.parse(request.body);
+
+    const data = await this.expenseService.create(parsedData, userId ?? '');
     return response.status(200).send(data);
   };
 }

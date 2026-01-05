@@ -40,6 +40,16 @@ export class ExpenseServiceImpl implements ExpenseService {
       },
     });
 
+    if (balance === null || balance === undefined) {
+      return {
+        amount: 0,
+        month: null,
+        year: null,
+        totalExpenses: 0,
+        expenseHistory: [],
+      };
+    }
+
     const result = await prisma.expense.groupBy({
       by: ['monthlyBalanceId'],
       where: {
