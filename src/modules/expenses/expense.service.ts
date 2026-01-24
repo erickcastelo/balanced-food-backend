@@ -34,7 +34,7 @@ export class ExpenseServiceImpl implements ExpenseService {
       },
       select: {
         id: true,
-        [field]: true,
+        ...(field === 'all' ? { totalAmount: true } : { [field]: true }),
         month: true,
         year: true,
       },
@@ -53,8 +53,9 @@ export class ExpenseServiceImpl implements ExpenseService {
     const result = await prisma.expense.groupBy({
       by: ['monthlyBalanceId'],
       where: {
-        userId: user?.id,
-        monthlyBalanceId: Number(balance?.id),
+        ...(field === 'all'
+          ? { monthlyBalanceId: Number(balance?.id) }
+          : { monthlyBalanceId: Number(balance?.id), userId: user?.id }),
       },
       _sum: {
         amount: true,
@@ -62,7 +63,7 @@ export class ExpenseServiceImpl implements ExpenseService {
     });
 
     const response = {
-      amount: balance?.[field],
+      amount: field === 'all' ? balance?.totalAmount : balance?.[field],
       month: balance?.month,
       year: balance?.year,
       totalExpenses: result.length > 0 ? result[0]?._sum.amount : 0,
@@ -70,12 +71,19 @@ export class ExpenseServiceImpl implements ExpenseService {
 
     const expenseHistory = await prisma.expense.findMany({
       where: {
-        monthlyBalanceId: Number(balance?.id),
+        ...(field === 'all'
+          ? { monthlyBalanceId: Number(balance?.id) }
+          : { monthlyBalanceId: Number(balance?.id), userId: user?.id }),
       },
       select: {
         amount: true,
         description: true,
         expenseDate: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
